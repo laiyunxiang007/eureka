@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: client
+server:
+  port: 8093
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8091/eureka/
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+resilience4j:
+  retry:   #重试
+    backends:
+      retryA:
+        maxRetryAttempts: 3   #最大重试次数
+        waitDuration: 100  #表示下一次重试等待时间，最小为100 ms
+        eventConsumerBufferSize: 2 #表示重试事件缓冲区大小
+        enableExponentialBackoff: true   #表示是否开启指数退避抖动算法，当一次调用失败后，如果在相同的时间间隔内发起重试，有可能发生连续的调用失败，因此可以开启指数退避抖动算法；
+        exponentialBackoffMultiplier: 1  #表示时间间隔乘数
+        enableRandomizedWait: false    #表示下次重试的时间间隔是否随机
+        randomizedWaitFactor: 0.5  # 随机因子
+        retryExceptionPredicate: com.example.client.RecordFailurePredicate  #自定义什么样的异常会被认定为请求失败
+        retryExceptions:   #表示需要重试的异常
+            - java.io.IOException
+#          ignoreExceptions:    表示忽略的异常
+#            - cn.com.scitc.exception.IgnoredException
+  ratelimiter:   #限流
+    limiters:
+      backendA:
+        limitForPeriod: 1  #表示请求频次的阈值
+        limitRefreshPeriodInMillis: 5000  #表示频次刷新的周期
+        timeoutInMillis: 1000   #许可期限的等待时间，默认为5秒
+        subscribeForEvents: true  #表示开启事件订阅
+        registerHealthIndicator: true  #表示开启健康监控
+        eventConsumerBufferSize: 100   #表示事件缓冲区大小
+
+
+  circuitbreaker:    #断路器
+    backends:
+      breakA:
+        ringBufferSizeInClosedState: 5  #表示断路器关闭状态下，环形缓冲区的大小
+        ringBufferSizeInHalfOpenState: 3  #表示断路器处于 HalfOpen 状态下，环形缓冲区的大小
+        waitInterval: 5000    #表示断路器从 open 切换到 half closed 状态时，需要保持的时间；
+        failureRateThreshold: 50  #表示故障率阈值百分比，超过这个阈值，断路器就会打开
+        eventConsumerBufferSize: 10  #表示事件缓冲区大小
+        registerHealthIndicator: true  #表示开启健康检测
+        recordFailurePredicate: com.example.client.RecordFailurePredicate
+        recordExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+        ignoreExceptions:
+          - org.springframework.web.client.HttpClientErrorException
+
