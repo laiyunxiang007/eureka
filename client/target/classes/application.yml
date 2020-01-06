@@ -26,9 +26,9 @@ resilience4j:
         randomizedWaitFactor: 0.5  # 随机因子
         retryExceptionPredicate: com.example.client.RecordFailurePredicate  #自定义什么样的异常会被认定为请求失败
         retryExceptions:   #表示需要重试的异常
-            - java.io.IOException
-#          ignoreExceptions:    表示忽略的异常
-#            - cn.com.scitc.exception.IgnoredException
+          - java.io.IOException
+  #          ignoreExceptions:    表示忽略的异常
+  #            - cn.com.scitc.exception.IgnoredException
   ratelimiter:   #限流
     limiters:
       backendA:

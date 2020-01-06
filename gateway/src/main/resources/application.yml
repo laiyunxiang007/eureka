@@ -1,0 +1,30 @@
+server:
+  port: 8094
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8091/eureka/
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true  # 是否和服务注册与发现组件结合，设置为 true 后可以直接使用应用名称调用服务
+          lower-case-service-id: true  #大小写
+      # 路由
+      routes:
+        - id: client-service                 # 路由标识（id：标识，具有唯一性）   简单尝试
+          uri: lb://client              # 目标服务地址（uri：地址，请求转发后的地址）
+          predicates:
+            - Path=/client-service/**   #更换前缀路由
+          filters:
+            - StripPrefix=1     #去除/client-service/前缀
+            - name: Hystrix
+              args:
+                name: fallbackcmd
+                fallbackUri: forward:/fallback
+#      # 限流
+#        - name:  RequestRateLimiter
+hystrix.command.fallbackcmd.execution.isolation.thread.timeoutInMilliseconds: 5000

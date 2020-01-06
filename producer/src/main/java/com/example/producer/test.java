@@ -21,7 +21,7 @@ public class test {
 
     @RequestMapping("/hello1")
     public String a2(@RequestParam(value = "id", required = false) String id) throws InterruptedException {
-        System.out.println("进入了。。。。");
+        Thread.sleep(5500);
         return id;
     }
 }
